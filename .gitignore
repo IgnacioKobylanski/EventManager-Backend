@@ -1,0 +1,31 @@
+# Build folders
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.cache
+*.log
+
+# Rider files
+.idea/
+
+# ASP.NET Core files
+appsettings.Development.json
+appsettings.Local.json
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+
+# Others
+*.DS_Store
+*.vspscc
+*.vssscc
+*.pdb
+
+# Publish output
+publish/
