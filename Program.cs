@@ -1,4 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using EventManager.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("secrets.json", optional: false, reloadOnChange: true);
+
+
+builder.Services.AddDbContext<EventContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    ));
 
 // Add services to the container.
 
