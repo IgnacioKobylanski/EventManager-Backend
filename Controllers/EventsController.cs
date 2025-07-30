@@ -2,7 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using EventManager.Data;
 using EventManager.Models;
+using EventManager.Dtos;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EventManager.Controllers
@@ -20,20 +22,88 @@ namespace EventManager.Controllers
 
         // GET: api/events
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetEvents()
         {
-            return await _context.Events.ToListAsync();
+            var events = await _context.Events
+                .Include(e => e.User)
+                .Select(e => new EventDto
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Description = e.Description,
+                    Date = e.Date,
+                    Location = e.Location,
+                    ImageUrl = e.ImageUrl,
+                    Capacity = e.Capacity,
+                    User = new UserDto
+                    {
+                        Id = e.User.Id,
+                        Username = e.User.Username,
+                        Email = e.User.Email
+                    }
+                })
+                .ToListAsync();
+
+            return events;
         }
 
         // GET: api/events/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Event>> GetEvent(int id)
+        public async Task<ActionResult<EventDto>> GetEvent(int id)
         {
-            var ev = await _context.Events.FindAsync(id);
+            var ev = await _context.Events
+                .Include(e => e.User)
+                .Where(e => e.Id == id)
+                .Select(e => new EventDto
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Description = e.Description,
+                    Date = e.Date,
+                    Location = e.Location,
+                    ImageUrl = e.ImageUrl,
+                    Capacity = e.Capacity,
+                    User = new UserDto
+                    {
+                        Id = e.User.Id,
+                        Username = e.User.Username,
+                        Email = e.User.Email
+                    }
+                })
+                .FirstOrDefaultAsync();
+
             if (ev == null)
                 return NotFound();
 
             return ev;
+        }
+
+        // GET: api/events/user/3
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetEventsByUser(int userId)
+        {
+            var events = await _context.Events
+                .Include(e => e.User)
+                .Where(e => e.UserId == userId)
+                .Select(e => new EventDto
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Description = e.Description,
+                    Date = e.Date,
+                    Location = e.Location,
+                    ImageUrl = e.ImageUrl,
+                    Capacity = e.Capacity,
+                    User = new UserDto
+                    {
+                        Id = e.User.Id,
+                        Username = e.User.Username,
+                        Email = e.User.Email
+                    }
+                })
+                .ToListAsync();
+
+            return events;
         }
 
         // POST: api/events

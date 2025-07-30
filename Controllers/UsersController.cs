@@ -52,7 +52,6 @@ namespace EventManager.Controllers
             if (!verified)
                 return Unauthorized("Email o contraseña incorrectos.");
 
-            // Aquí podrías generar un token JWT o alguna sesión
             return Ok("Login exitoso.");
         }
     }
