@@ -108,36 +108,30 @@ namespace EventManager.Controllers
 
         // POST: api/events
         [HttpPost]
-        public async Task<ActionResult<Event>> CreateEvent(Event ev)
+        public async Task<ActionResult<Event>> CreateEvent(EventCreateDto eventDto)
         {
-            _context.Events.Add(ev);
+            var user = await _context.Users.FindAsync(eventDto.UserId);
+            if (user == null)
+            {
+                return BadRequest("El usuario especificado no existe.");
+            }
+
+            // Crea una instancia del modelo Event y asigna los valores del DTO
+            var newEvent = new Event
+            {
+                Name = eventDto.Name,
+                Description = eventDto.Description,
+                Date = eventDto.Date,
+                Location = eventDto.Location,
+                ImageUrl = eventDto.ImageUrl,
+                Capacity = eventDto.Capacity,
+                UserId = eventDto.UserId
+            };
+
+            _context.Events.Add(newEvent);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetEvent), new { id = ev.Id }, ev);
-        }
-
-        // PUT: api/events/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEvent(int id, Event ev)
-        {
-            if (id != ev.Id)
-                return BadRequest();
-
-            _context.Entry(ev).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Events.Any(e => e.Id == id))
-                    return NotFound();
-                else
-                    throw;
-            }
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetEvent), new { id = newEvent.Id }, newEvent);
         }
 
         // DELETE: api/events/5
